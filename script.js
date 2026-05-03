@@ -104,17 +104,22 @@ window.addEventListener('scroll', () => {
 });
 
 // ===== CONTACT FORM =====
-function sendMessage(e) {
+document.querySelector(".contact-form").addEventListener("submit", function(e) {
   e.preventDefault();
-  const btn = e.target.querySelector('button[type="submit"]');
-  btn.innerHTML = '<i class="fas fa-check"></i> Sent!';
-  btn.style.background = 'var(--wa)';
-  setTimeout(() => {
-    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
-    btn.style.background = '';
-    e.target.reset();
-  }, 3000);
-}
+
+  const btn = this.querySelector('button[type="submit"]');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+  emailjs.sendForm('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', this)
+    .then(() => {
+      btn.innerHTML = '<i class="fas fa-check"></i> Sent!';
+      btn.style.background = 'var(--wa)';
+      this.reset();
+    })
+    .catch(() => {
+      btn.innerHTML = 'Failed ❌';
+    });
+});
 
 // ===== TOOL CHIP HOVER COLORS =====
 const toolChips = document.querySelectorAll('.tool-chip');
