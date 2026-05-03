@@ -47,7 +47,6 @@ function closeMenu() {
   document.body.style.overflow = '';
 }
 
-// Close on overlay click
 mobileMenu.addEventListener('click', (e) => {
   if (e.target === mobileMenu) closeMenu();
 });
@@ -68,7 +67,6 @@ const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       entry.target.classList.add('active');
-      // Animate skill bars when they come into view
       const fills = entry.target.querySelectorAll('.bar-fill');
       fills.forEach(fill => {
         const w = fill.getAttribute('data-width');
@@ -97,29 +95,54 @@ window.addEventListener('scroll', () => {
       link.classList.add('active-link');
     }
   });
-
-  // Navbar shadow
   const nav = document.querySelector('.navbar');
   nav.style.boxShadow = window.scrollY > 50 ? '0 5px 30px rgba(0,0,0,0.5)' : 'none';
 });
 
-// ===== CONTACT FORM =====
-document.querySelector(".contact-form").addEventListener("submit", function(e) {
-  e.preventDefault();
+// ===== CONTACT FORM — Formspree (xlgzgkyk) =====
+const contactForm = document.getElementById('contactForm');
+if (contactForm) {
+  contactForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
 
-  const btn = this.querySelector('button[type="submit"]');
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    const btn     = document.getElementById('submitBtn');
+    const success = document.getElementById('formSuccess');
+    const error   = document.getElementById('formError');
 
-  emailjs.sendForm('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', this)
-    .then(() => {
-      btn.innerHTML = '<i class="fas fa-check"></i> Sent!';
-      btn.style.background = 'var(--wa)';
-      this.reset();
-    })
-    .catch(() => {
-      btn.innerHTML = 'Failed ❌';
-    });
-});
+    // Show loading
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    success.style.display = 'none';
+    error.style.display   = 'none';
+
+    try {
+      const response = await fetch('https://formspree.io/f/xlgzgkyk', {
+        method:  'POST',
+        body:    new FormData(contactForm),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (response.ok) {
+        // SUCCESS
+        success.style.display = 'block';
+        contactForm.reset();
+        btn.innerHTML = '<i class="fas fa-check"></i> Message Sent!';
+        setTimeout(() => {
+          btn.innerHTML        = '<i class="fas fa-paper-plane"></i> Send Message';
+          btn.disabled         = false;
+          success.style.display = 'none';
+        }, 5000);
+      } else {
+        throw new Error('Server error');
+      }
+    } catch (err) {
+      // ERROR
+      error.style.display  = 'block';
+      btn.innerHTML        = '<i class="fas fa-paper-plane"></i> Send Message';
+      btn.disabled         = false;
+    }
+  });
+}
 
 // ===== TOOL CHIP HOVER COLORS =====
 const toolChips = document.querySelectorAll('.tool-chip');
